@@ -1,17 +1,39 @@
 import { Request, Response } from "express";
 import Transaction from "../models/transaction";
 import Product from "../models/product";
+import { response } from "../utils/response";
+
+export const getTransactions = async (req: Request, res: Response) => {
+  try {
+    const transactions = await Transaction.findAll();
+    return response(res, 200, "Success to get transactions data", transactions);
+  } catch (error) {
+    return response(res, 500, "Failed to get transactions data", null);
+  }
+};
+
+export const getTransactionDetail = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const transaction = await Transaction.findByPk(id);
+    if (!transaction) {
+      return response(res, 404, "Transaction not found", null);
+    }
+    return response(res, 200, "Success to get transaction detail data", transaction);
+  } catch (error) {
+    return response(res, 500, "Failed to get transaction detail data", null);
+  }
+};
 
 export const createTransaction = async (req: Request, res: Response) => {
   try {
     const { productId, quantity, type } = req.body;
     const product = await Product.findByPk(productId);
     if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      return response(res, 404, "Product not found", null);
     }
-
     if (type === "out" && product.stock < quantity) {
-      return res.status(400).json({ error: "Insufficient stock" });
+      return response(res, 400, "Insufficient Produc Stock", null);
     }
 
     if (type === "out") {
@@ -22,18 +44,9 @@ export const createTransaction = async (req: Request, res: Response) => {
 
     await product.save();
     const transaction = await Transaction.create({ productId, quantity, type });
-    res.status(201).json(transaction);
+    return response(res, 201, "Success to create new transaction", transaction);
   } catch (error) {
-    res.status(500).json({ error: "Failed to create transaction" });
-  }
-};
-
-export const getTransactions = async (req: Request, res: Response) => {
-  try {
-    const transactions = await Transaction.findAll();
-    res.json(transactions);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch transactions" });
+    return response(res, 500, "Failed to create new transaction", null);
   }
 };
 
@@ -42,11 +55,11 @@ export const deleteTransaction = async (req: Request, res: Response) => {
     const { id } = req.params;
     const transaction = await Transaction.findByPk(id);
     if (!transaction) {
-      return res.status(404).json({ error: "Transaction not found" });
+      return response(res, 404, "Transaction not found", null);
     }
     await transaction.destroy();
-    res.json({ message: "Transaction deleted" });
+    return response(res, 201, "Success to delete transaction", null);
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete transaction" });
+    return response(res, 500, "Failed to delete transaction", null);
   }
 };

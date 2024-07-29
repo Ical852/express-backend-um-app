@@ -52,7 +52,8 @@ export const fetchAdmin = async (req: Request, res: Response) => {
     if (!admin) {
       return response(res, 500, "Admin not found", null);
     }
-    return response(res, 200, "Success to fetch admin", admin);
+    const { password: _password, ...adminWithoutPassword } = admin.toJSON();
+    return response(res, 200, "Success to fetch admin", adminWithoutPassword);
   } catch (error) {
     return response(res, 500, "Failed to fetch admins", null);
   }
@@ -66,7 +67,8 @@ export const update = async (req: Request, res: Response) => {
       return response(res, 500, "Admin not found", null);
     }
     await admin.update({ firstName, lastName, birthDate, gender });
-    return response(res, 200, "Success to update profile", admin);
+    const { password: _password, ...adminWithoutPassword } = admin.toJSON();
+    return response(res, 200, "Success to update profile", adminWithoutPassword);
   } catch (error) {
     return response(res, 500, "Failed to update profile", null);
   }
@@ -85,7 +87,11 @@ export const logout = async (req: Request, res: Response) => {
 export const getAdmins = async (req: Request, res: Response) => {
   try {
     const admins = await Admin.findAll();
-    return response(res, 200, "Success to get admin data", admins);
+    const adminsWithoutPassword = admins.map(admin => {
+      const { password, ...adminWithoutPassword } = admin.toJSON();
+      return adminWithoutPassword;
+    });
+    return response(res, 200, "Success to get admin data", adminsWithoutPassword);
   } catch (error) {
     return response(res, 500, "Failed to get admin data", null);
   }
@@ -100,7 +106,8 @@ export const updateAdmin = async (req: Request, res: Response) => {
       return response(res, 404, "Admin not found", null);
     }
     await admin.update({ firstName, lastName, birthDate, gender });
-    return response(res, 200, "Success to update admin data", admin);
+    const { password: _password, ...adminWithoutPassword } = admin.toJSON();
+    return response(res, 200, "Success to update admin data", adminWithoutPassword);
   } catch (error) {
     return response(res, 500, "Failed to update admin data", null);
   }

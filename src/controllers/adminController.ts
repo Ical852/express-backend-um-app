@@ -19,7 +19,8 @@ export const createAdmin = async (req: Request, res: Response) => {
       gender,
       password: hashedPassword,
     });
-    return response(res, 201, "Success register admin", admin);
+    const { password: _password, ...adminWithoutPassword } = admin.toJSON();
+    return response(res, 201, "Success register admin", adminWithoutPassword);
   } catch (error: any) {
     return response(res, 500, "Failed to create admin", null);
   }

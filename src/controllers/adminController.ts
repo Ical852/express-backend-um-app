@@ -40,7 +40,10 @@ export const loginAdmin = async (req: Request, res: Response) => {
     const token = jwt.sign({ id: admin.id }, jwtKey, {
       expiresIn: "1h",
     });
-    return response(res, 201, "Login success", token);
+    return response(res, 201, "Login success", {
+      data: admin,
+      token,
+    });
   } catch (error) {
     return response(res, 500, "Login Failed", null);
   }
@@ -68,7 +71,12 @@ export const update = async (req: Request, res: Response) => {
     }
     await admin.update({ firstName, lastName, birthDate, gender });
     const { password: _password, ...adminWithoutPassword } = admin.toJSON();
-    return response(res, 200, "Success to update profile", adminWithoutPassword);
+    return response(
+      res,
+      200,
+      "Success to update profile",
+      adminWithoutPassword
+    );
   } catch (error) {
     return response(res, 500, "Failed to update profile", null);
   }
@@ -87,11 +95,16 @@ export const logout = async (req: Request, res: Response) => {
 export const getAdmins = async (req: Request, res: Response) => {
   try {
     const admins = await Admin.findAll();
-    const adminsWithoutPassword = admins.map(admin => {
+    const adminsWithoutPassword = admins.map((admin) => {
       const { password, ...adminWithoutPassword } = admin.toJSON();
       return adminWithoutPassword;
     });
-    return response(res, 200, "Success to get admin data", adminsWithoutPassword);
+    return response(
+      res,
+      200,
+      "Success to get admin data",
+      adminsWithoutPassword
+    );
   } catch (error) {
     return response(res, 500, "Failed to get admin data", null);
   }
@@ -107,7 +120,12 @@ export const updateAdmin = async (req: Request, res: Response) => {
     }
     await admin.update({ firstName, lastName, birthDate, gender });
     const { password: _password, ...adminWithoutPassword } = admin.toJSON();
-    return response(res, 200, "Success to update admin data", adminWithoutPassword);
+    return response(
+      res,
+      200,
+      "Success to update admin data",
+      adminWithoutPassword
+    );
   } catch (error) {
     return response(res, 500, "Failed to update admin data", null);
   }

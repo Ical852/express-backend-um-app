@@ -2,10 +2,19 @@ import { Request, Response } from "express";
 import Transaction from "../models/transaction";
 import Product from "../models/product";
 import { response } from "../utils/response";
+import Category from "../models/category";
 
 export const getTransactions = async (req: Request, res: Response) => {
   try {
-    const transactions = await Transaction.findAll();
+    const transactions = await Transaction.findAll({
+      include: [
+        {
+          model: Product,
+          as: "product",
+          include: [{ model: Category, as: "category" }],
+        },
+      ],
+    });
     return response(res, 200, "Success to get transactions data", transactions);
   } catch (error) {
     return response(res, 500, "Failed to get transactions data", null);
@@ -15,11 +24,29 @@ export const getTransactions = async (req: Request, res: Response) => {
 export const getTransactionDetail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const transaction = await Transaction.findByPk(id);
+    const transaction = await Transaction.findByPk(id, {
+      include: [
+        {
+          model: Product,
+          as: "product",
+          include: [
+            {
+              model: Category,
+              as: "category",
+            },
+          ],
+        },
+      ],
+    });
     if (!transaction) {
       return response(res, 404, "Transaction not found", null);
     }
-    return response(res, 200, "Success to get transaction detail data", transaction);
+    return response(
+      res,
+      200,
+      "Success to get transaction detail data",
+      transaction
+    );
   } catch (error) {
     return response(res, 500, "Failed to get transaction detail data", null);
   }

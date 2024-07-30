@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../configs/database";
+import Category from "./category";
 
 class Product extends Model {
   public id!: number;
@@ -44,5 +45,10 @@ Product.init(
     tableName: "products",
   }
 );
+
+Product.belongsTo(Category, {
+  foreignKey: "categoryId",
+  as: "category",
+});
 
 export default Product;

@@ -5,19 +5,23 @@ import { response } from "../utils/response";
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    const products = await Product.findAll();
-    return response(res, 200, 'Success to get products data', products);
-  } catch (error) {
-    return response(res, 500, "Failed to get products data", null);
+    const products = await Product.findAll({
+      include: [{ model: Category, as: "category" }],
+    });
+    return response(res, 200, "Success to get products data", products);
+  } catch (error: any) {
+    return response(res, 500, error.message, null);
   }
 };
 
 export const getProductDetail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const product = await Product.findByPk(id);
+    const product = await Product.findByPk(id, {
+      include: [{ model: Category, as: "category" }],
+    });
     if (!product) {
-      return response(res, 404, "Product Not Found", null)
+      return response(res, 404, "Product Not Found", null);
     }
     return response(res, 200, "Success to get product detail", product);
   } catch (error) {
@@ -53,7 +57,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     const product = await Product.findByPk(id);
     const category = await Category.findByPk(categoryId);
     if (!product) {
-      return response(res, 404, "Product not found", null)
+      return response(res, 404, "Product not found", null);
     }
     if (!category) {
       return response(res, 404, "Category not found", null);
